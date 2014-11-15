@@ -2,16 +2,16 @@
 #define PEOPLE_H
 class people
 {
-	int num;
+	int root;
 	int anti;
 public:
 	people();
-	people(int n);
-	people(int n, int a);
-	int getNum();
+	people(int r);
+	people(int r, int a);
+	int getRoot();
 	int getAnti();
 	void setAnti(int );
-	void setNum(int );
+	void setRoot(int );
 	~people();
 };
 

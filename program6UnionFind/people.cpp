@@ -3,22 +3,22 @@
 
 people::people()
 {
-	num = -1;
+	root = -1;
 	anti = -1;
 }
 people::people(int n)
 {
-	num = n;
+	root = n;
 	anti = -1;
 }
 people::people(int n, int a)
 {
-	num = n;
+	root = n;
 	anti = a;
 }
-int people::getNum()
+int people::getRoot()
 {
-	return num;
+	return root;
 }
 int people::getAnti()
 {
@@ -28,9 +28,9 @@ void people::setAnti(int a)
 {
 	anti = a;
 }
-void people::setNum( int n)
+void people::setRoot( int n)
 {
-	num = n;
+	root = n;
 }
 
 people::~people()

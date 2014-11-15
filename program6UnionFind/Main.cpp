@@ -10,80 +10,97 @@ int findPeople(int name, people arr[]);
 int main()
 {
 	//first three data
-	int numDataSets, numStudents, numLines, lineCount=0;
-	
-	//initialize array
-	people arr[1001];
-	for (int i = 0; i < 1001; i++)
-	{
-		people init;// = new people();
-		arr[i] = init;
-	}
-	
-	//Initialize data
+	int numDataSets, numStudents, numLines, lineCount, dataSetCount = 0;
 	fstream fin;
 	fin.open("highschool.txt");
-	fin >> numDataSets >> numStudents >> numLines;
-	
-	//Read directions from file
-	while (lineCount <= numLines)
+	fin >> numDataSets;
+	while (dataSetCount <numDataSets)
 	{
-		char direction;
-		int name1, name2;
-		people first, second;
-		fin >> direction >> name1 >> name2;
-		
-		first = arr[name1];
-		second = arr[name2];
-		
-		//answer
-		if (direction == 65) 
+		//initialize array
+		people arr[1001];
+		for (int i = 0; i < 1001; i++)
 		{
-			string message=" ";
-			if (first.getAnti() == name2 || second.getAnti() == name1) message = "In different schools.";
-			else if (first.getAnti() !=-1 && first.getAnti() == second.getAnti()) message = "Went to the same school";
-			else message = "Not sure yet.";
-			cout << "Person " << name1 << " and " << name2 << ":   " << message << endl;
+			people init;
+			arr[i] = init;
 		}
-		//different
-		else if (direction == 68)
+		//Initialize data	
+		fin >> numStudents >> numLines;
+		lineCount = 0;
+		//Read directions from file
+		while (lineCount < numLines)
 		{
-			antiUnionPeople(name1, name2, arr);
-		}
-		lineCount++;
-	}
+			char direction;
+			int name1, name2;
+			fin >> direction >> name1 >> name2;
+			people one(name1), two(name2);
+			if (one.getAnti() == -1)one.setAnti(arr[name1].getAnti());
+			if (two.getAnti() == -1)two.setAnti(arr[name2].getAnti());
+
+
+			//answer
+			if (direction == 65)
+			{
+				string message = " ";
+				int root1 = findPeople(one.getRoot(), arr);
+				int root2 = findPeople(two.getRoot(), arr);
+				if (one.getRoot() != -1 && root1 == root2)  message = "Went to the same school";
+				else
+				{
+					int rootAnti1 = arr[root1].getAnti();
+					int rootAnti2 = arr[root2].getAnti();
+					if (rootAnti1 == root2 || rootAnti2 == root1) message = "In different schools.";
+					else message = "Not sure yet.";
+				}
+				cout << "Person " << name1 << " and " << name2 << ":   " << message << endl << endl;
+			}
+			//different
+			else if (direction == 68)
+			{ 
+				if (one.getAnti() != -1 && one.getAnti() == two.getAnti())
+				cout << "Different " << name1 << " " << name2 << " :" << " BAD DATA." << endl<<endl;
+
+				else antiUnionPeople(name1, name2, arr);
+			}lineCount++;			
+		}dataSetCount++;
+	}fin.close();
 	return 0;
 }
 void antiUnionPeople(int name1, int name2, people arr[])
 {
-	people first = arr[name1];
-	people second = arr[name2];
+	//get the roots of the two
+	int root1 = findPeople(name1, arr);
+	arr[name1].setRoot(root1);
+	int root2 = findPeople(name2, arr);
+	arr[name2].setRoot(root2);
+
 
 	//if anti already set
-	if (first.getAnti() > -1)
+	if (arr[name1].getAnti() > -1)
 	{
-		int anti = first.getAnti();
+		int anti = arr[name1].getAnti();
+		//if (arr[anti].getRoot != -1)
 		unionPeople(name2, anti, arr);
 	}
 	//if anit is not set
-	else first.setAnti(name2);
+	else arr[name1].setAnti(root2);
 	
 	
 	//if anti already set
-	if (second.getAnti() > -1)
+	if (arr[name2].getAnti() > -1)
 	{
-		int anti = second.getAnti();
+		int anti = arr[name2].getAnti();
 		unionPeople(name1, anti, arr);
 	}
-	//if anit is not set
-	else second.setAnti(name1);
-	arr[name2] = second;
-	arr[name1] = first;
+	//if anti is not set
+	else arr[name2].setAnti(root1);
 }
 void unionPeople(int name1, int name2, people arr[])
 {
 	int root1 = findPeople(name1, arr);
+	arr[name1].setRoot(root1);
 	int root2 = findPeople(name2, arr);
+	arr[name2].setRoot(root2);
+	
 	int newRoot, newChild;
 
 	if (root1 <= root2)
@@ -96,12 +113,11 @@ void unionPeople(int name1, int name2, people arr[])
 		newRoot = root2;
 		newChild = root1;
 	}
-	arr[newChild] = newRoot;
+	arr[newChild].setRoot(newRoot);
+
 }
 int findPeople(int name, people arr[])
-{
-	
-	if (arr[name].getNum() == -1)return name;
-	else arr[name] = findPeople(arr[name].getNum(), arr);
-	return arr[name].getNum();
+{	
+	if (arr[name].getRoot() == -1 || arr[name].getRoot() == name)return name;
+	else return findPeople(arr[name].getRoot(), arr);
 }
